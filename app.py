@@ -72,7 +72,7 @@ if not os.path.exists(chrome_driver_path):
 logger.info('loading driver')
 try:
     logger.info('loading list of threads to scrape')
-    base_urls = get_bay12_urls('url_list.txt')
+    base_urls = get_bay12_urls(os.path.join('data', 'url_list.txt'))
 
     url_conversions = []
 
@@ -109,7 +109,7 @@ try:
                 logger.error(f'Failed to convert last navPage to integer "{last_navpage.string}" to int')
 
             # create the topic folder
-            folder_path = os.path.join('data', 'topic', topic)
+            folder_path = os.path.join('data', 'topic', str(topic))
             os.makedirs(folder_path, exist_ok=True)
 
             post_number = 0
@@ -169,7 +169,7 @@ try:
                     for img_tag in img_tags:
                         img_tag_count += 1
                         #sleep a random time to prevent rate limiting
-                        _sleeptime = max(1, int(random.normalvariate(5, 2)))
+                        _sleeptime = max(1, float(random.normalvariate(3, 2)))
                         # logger.info(f'sleeping for {_sleeptime} to avoid rate limiting')
                         time.sleep(_sleeptime)
                         # download the image   
@@ -195,24 +195,6 @@ try:
                                                     
                 # increment by 15 because bay12 is weird like that
                 page_count += 15
-            logger.info('writing posts info')
-            with open(os.path.join('data', 'topic', f'post_{str(post_number)}', 'thread.html'), 'w') as f:
-                # sort the dictionary keys in ascending order
-                sorted_keys = sorted(posts.keys())
-                # loop through the sorted keys
-                for key in sorted_keys:
-                    # get the username and text for the current post
-                    username, text = posts[key]
-                    # write the post number, username, and text to the file with a horizontal line between them
-                    f.write(f'{key} | by {username}:\n')
-                    f.write(f'{text}\n')
-                    f.write('-' * 80)
-                    f.write('\n')
-            logger.info('writing conversations.json')
-            with open(os.path.join('data', 'url_conversions.json'), 'w') as f:
-                # serialize the list as JSON and write it to the file
-                json.dump(url_conversions, f)
-        logger.info('finished with list of threads')
 
 except SessionNotCreatedException as e:
     logger.exception(f'unable to create session. please verify that your webdriver version matches the installed chrome version, {e}')
@@ -224,4 +206,22 @@ except Exception as e:
     logger.critical('an unknown exception has occured. please send the app.log and url_list.txt files to https://github.com/Celebrinborn/Bay12_Imgur_Archive', exc_info=True, stack_info=True)
     logger.critical(e)
     raise e
+finally:
+    logger.info('writing posts info')
+    with open(os.path.join('data', 'topic', str(topic), 'thread.html'), 'w', encoding='utf-8') as f:
+        # sort the dictionary keys in ascending order
+        sorted_keys = sorted(posts.keys())
+        # loop through the sorted keys
+        for key in sorted_keys:
+            # get the username and text for the current post
+            username, text = posts[key]
+            # write the post number, username, and text to the file with a horizontal line between them
+            f.write(f'{key} | by {username}:\n')
+            f.write(f'{text}\n')
+            f.write('-' * 80)
+            f.write('\n')
+    logger.info('writing conversations.json')
+    with open(os.path.join('data', 'url_conversions.json'), 'w', encoding='utf-8') as f:
+        # serialize the list as JSON and write it to the file
+        json.dump(url_conversions, f)
 
