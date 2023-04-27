@@ -31,3 +31,8 @@ It takes an average of 5.5 seconds per image per post in the thread to archive a
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+
+### Bug Reporting
+
+Please report any issues to this github. Please be sure to include your log file in logs/app.log as well as your url_list.txt file
