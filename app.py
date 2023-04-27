@@ -6,6 +6,7 @@ from selenium.common.exceptions import *
 from log_config import configure_logging
 from bs4 import BeautifulSoup
 
+from urllib.parse import urlparse
 import urllib.parse
 import uuid
 import time
@@ -127,7 +128,7 @@ try:
             logger.info(f'navigating to page {i} of {last_page_num} at {url}')
             # navigate to the thread_url
             try:
-                driver.get(base_url)
+                driver.get(url)
             except TimeoutException as e:
                 logger.error('timeout occured')
                 driver = webdriver.Chrome(executable_path=chrome_driver_path)
@@ -184,20 +185,30 @@ try:
                 
                 # extract the src attribute of each img element that has a valid image file extension
                 img_tag_count = 0
+
+                # skip the sleep if the previous site was a different domain
+                prev_scapped_url = None
                 for img_tag in img_tags:
                     img_tag_count += 1
-                    #sleep a random time to prevent rate limiting
-                    _sleeptime = max(1, float(random.normalvariate(3, 2)))
-                    # logger.info(f'sleeping for {_sleeptime} to avoid rate limiting')
-                    time.sleep(_sleeptime)
-                    # download the image   
+                    
+                    # get url
                     src = img_tag.get('src')
+
+                    # only wait if you are parsing the same address twice in a row. This should cut down on waits
+                    base_src_address = urlparse(src).netloc
+                    if prev_scapped_url == base_src_address:
+                        #sleep a random time to prevent rate limiting
+                        _sleeptime = max(1, float(random.normalvariate(3, 2)))
+                        time.sleep(_sleeptime)
+                    prev_scapped_url = base_src_address
+                    
+                    # download the image  
                     if src and any(src.lower().endswith(ext) for ext in image_extensions):
                         # create a unique identifier for each image
                         image_id = str(uuid.uuid4())
                         logger.info(f'pulling image {img_tag_count} of {len(img_tags)} at {src}')
                         try:
-                            driver.get(base_url)
+                            driver.get(url)
                         except TimeoutException as e:
                             logger.error('timeout occured')
                             driver = webdriver.Chrome(executable_path=chrome_driver_path)
