@@ -8,11 +8,14 @@ This project is designed to archive the Bay12Forums after Imgur is taken down. T
 
 1. Clone the project onto your machine.
 2. Navigate to the project directory.
+3.A (optional but recommended). Create an venv environment with the commands "python -m venv env" followed by ".\env\scripts\activate" If you do other stuff with python this will prevent any annoying pip installs and make it easy to delete everything when you are done.
 3. Install the required dependencies by running the following command: `pip install -r requirements.txt`
-4. Create a file called `url_list.txt` in the `data` directory.
+4. Create a file called `url_list.txt` in the `data` directory. Populate it with threads. Note: they must be bay12forums sites and must only have a topic parameter
+http://www.bay12forums.com/smf/index.php?topic=168375.msg8472151#msg8472151 would not work
+http://www.bay12forums.com/smf/index.php?topic=168375 will work
 5. Run the app by running the command `python app.py`.
 
-### Running app.py via Docker
+### Running app.py via Docker NOT YET IMPLEMENTED!!!!!!
 
 1. Clone the project onto your machine.
 2. Install Docker.
